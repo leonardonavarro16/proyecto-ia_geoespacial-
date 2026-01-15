@@ -1,65 +1,141 @@
-import Image from "next/image";
+'use client';
+
+import dynamic from 'next/dynamic';
+import { useState, useEffect } from 'react';
+import Chat from '@/components/chat/Chat';
+import EnvironmentDashboard from '@/components/dashboard/EnvironmentDashboard';
+import { Onborda, useOnborda } from "onborda";
+import { TourCard } from "@/components/tour/TourCard";
+
+// Helper component to handle auto-start logic (One-time only)
+function TourAutoStart() {
+  const { startOnborda } = useOnborda();
+  
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem("geo_tour_completed");
+    if (!hasSeenTour) {
+      const timer = setTimeout(() => {
+        startOnborda("geo-tour");
+        localStorage.setItem("geo_tour_completed", "true");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [startOnborda]);
+
+  return null;
+}
+
+// Dynamically import Map to avoid SSR issues with Leaflet
+const Map = dynamic(() => import('@/components/map/Map'), { 
+  ssr: false,
+  loading: () => <div className="h-full w-full flex items-center justify-center bg-muted text-muted-foreground">Cargando mapa...</div>
+});
+
+const tourSteps = [
+  {
+    tour: "geo-tour",
+    steps: [
+      {
+        icon: "🗺️",
+        title: "Paso 1: Análisis Territorial",
+        content: "Haz click en cualquier punto del mapa para seleccionar una parcela. El sistema registrará las coordenadas exactas para el análisis.",
+        selector: "#map-section",
+        side: "top" as const,
+        showPointer: false, // Card stays centered, no arrow
+      },
+      {
+        icon: "🔍",
+        title: "Paso 2: Localización Directa",
+        content: "Utiliza este buscador para situarte en cualquier dirección o municipio del mundo de forma instantánea.",
+        selector: "#search-form",
+        side: "bottom" as const,
+        showPointer: false,
+      },
+      {
+        icon: "🌏",
+        title: "Paso 3: Imagen de Satélite",
+        content: "Cambia a la vista de satélite para observar el estado real del suelo, vegetación e infraestructuras existentes.",
+        selector: "#map-view-toggle",
+        side: "bottom" as const,
+        showPointer: false,
+      },
+      {
+        icon: "📊",
+        title: "Paso 4: Variables del Entorno",
+        content: "Aquí verás el clima actual, riesgos de inundación según el terreno y servicios urbanos cercanos.",
+        selector: "#dashboard-section",
+        side: "left" as const,
+        showPointer: false,
+      },
+      {
+        icon: "🤖",
+        title: "Paso 5: Reporte Pericial IA",
+        content: "Pulsa el botón de 'Iniciar Análisis' para que nuestra IA redacte un informe técnico profesional basado en todas las fuentes consultadas.",
+        selector: "#analysis-section",
+        side: "right" as const,
+        showPointer: false,
+      },
+    ]
+  }
+];
 
 export default function Home() {
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [activeLayer, setActiveLayer] = useState<string | null>(null);
+  const [baseLayer, setBaseLayer] = useState<string>('osm');
+
+  // Default Focus (Madrid center)
+  const defaultLat = 40.416775;
+  const defaultLon = -3.703790;
+
+  const handleLayerToggle = (layer: string) => {
+    setActiveLayer(prevLayer => prevLayer === layer ? null : layer);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <Onborda 
+        steps={tourSteps} 
+        cardComponent={TourCard} 
+        shadowOpacity="0.8" 
+        shadowRgb="0,0,0"
+    >
+      <TourAutoStart />
+      <main className="flex h-screen w-screen flex-col md:flex-row overflow-hidden bg-background">
+        {/* Sidebar / Chat Area */}
+        <div id="analysis-section" className="w-full md:w-[320px] lg:w-[450px] shrink-0 border-r z-10 h-[50vh] md:h-full order-2 md:order-1 relative bg-white dark:bg-slate-950">
+          <Chat selectedLocation={selectedLocation} onLocationSelect={setSelectedLocation} />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Map Area */}
+        <div id="map-section" className="flex-1 relative h-[50vh] md:h-full order-1 md:order-2">
+          <Map 
+            lat={selectedLocation?.lat || defaultLat} 
+            lon={selectedLocation?.lon || defaultLon} 
+            onLocationSelect={(lat, lon) => setSelectedLocation({ lat, lon })} 
+            activeLayer={activeLayer}
+            baseLayer={baseLayer}
+          />
+          
+          {/* Environment Dashboard Overlay */}
+          <div id="dashboard-section" className="absolute top-4 right-4 z-1000 w-[320px]">
+              <EnvironmentDashboard 
+                  lat={selectedLocation?.lat || defaultLat} 
+                  lon={selectedLocation?.lon || defaultLon} 
+                  onLayerChange={handleLayerToggle}
+                  onLocationSelect={(loc) => setSelectedLocation(loc)}
+                  activeLayer={activeLayer}
+                  baseLayer={baseLayer}
+                  onBaseLayerChange={setBaseLayer}
+              />
+          </div>
+          
+          {!selectedLocation && (
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white/95 dark:bg-black/95 p-4 rounded-2xl shadow-xl z-1000 max-w-xs text-sm text-center border animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <p className="font-bold text-blue-600">📍 Haz click para iniciar el análisis</p>
+            </div>
+          )}
         </div>
       </main>
-    </div>
+    </Onborda>
   );
 }
