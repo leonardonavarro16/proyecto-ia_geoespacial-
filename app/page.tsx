@@ -107,7 +107,7 @@ export default function Home() {
         </div>
 
         {/* Map Area */}
-        <div id="map-section" className="flex-1 relative h-[50vh] md:h-full order-1 md:order-2">
+        <div id="map-section" className="flex-1 relative h-[50vh] md:h-full order-1 md:order-2 z-0">
           <Map 
             lat={selectedLocation?.lat || defaultLat} 
             lon={selectedLocation?.lon || defaultLon} 
@@ -117,7 +117,7 @@ export default function Home() {
           />
           
           {/* Environment Dashboard Overlay */}
-          <div id="dashboard-section" className="absolute top-4 right-4 z-1000 w-[320px]">
+          <div id="dashboard-section" className="absolute top-4 right-4 z-[1001] w-[320px]">
               <EnvironmentDashboard 
                   lat={selectedLocation?.lat || defaultLat} 
                   lon={selectedLocation?.lon || defaultLon} 
@@ -130,8 +130,8 @@ export default function Home() {
           </div>
           
           {!selectedLocation && (
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white/95 dark:bg-black/95 p-4 rounded-2xl shadow-xl z-1000 max-w-xs text-sm text-center border animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              <p className="font-bold text-blue-600">📍 Haz click para iniciar el análisis</p>
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white/95 dark:bg-black/95 p-4 rounded-2xl shadow-xl z-[1001] max-w-xs text-sm text-center border border-blue-100 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <p className="font-bold text-blue-600">📍 Haz click en el mapa para iniciar</p>
             </div>
           )}
         </div>

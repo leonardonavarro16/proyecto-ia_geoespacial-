@@ -269,6 +269,9 @@ export default function EnvironmentDashboard({
                     <DialogContent className="max-w-md max-h-[80vh] flex flex-col">
                         <DialogHeader>
                             <DialogTitle>Ubicaciones Guardadas</DialogTitle>
+                            <DialogDescription>
+                                Accede a tus informes y geolocalizaciones guardadas previamente en este dispositivo.
+                            </DialogDescription>
                         </DialogHeader>
                         <ScrollArea className="flex-1 pr-4">
                             {savedLocations.length === 0 ? (

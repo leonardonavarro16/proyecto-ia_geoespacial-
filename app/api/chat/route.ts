@@ -89,9 +89,16 @@ export async function POST(req: Request) {
       headers: { 'Content-Type': 'application/json' }
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Error en el análisis geoespacial:", error);
-    return new Response(JSON.stringify({ error: "Error procesando el análisis de la ubicación" }), { 
+    
+    // Provide a more helpful error message in the response
+    const errorMessage = error.message || "Error procesando el análisis de la ubicación";
+    
+    return new Response(JSON.stringify({ 
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }), { 
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

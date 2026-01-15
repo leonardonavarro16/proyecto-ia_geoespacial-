@@ -69,14 +69,17 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
         }),
       });
 
-      if (!response.ok) throw new Error('Error al generar el informe');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Error al generar el informe");
+      }
 
       const data = await response.json();
       setReport(data);
       toast.success("Informe generado con éxito", { id: "analysis" });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
-      toast.error("Error al generar el informe técnico", { id: "analysis" });
+      toast.error(error.message || "Error al generar el informe técnico", { id: "analysis" });
     } finally {
       setIsLoading(false);
     }
