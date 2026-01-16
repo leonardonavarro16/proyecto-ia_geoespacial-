@@ -19,6 +19,7 @@ interface MapProps {
   onLocationSelect: (lat: number, lon: number) => void;
   activeLayer?: string | null;
   baseLayer?: string;
+  resizeToken?: string | number | boolean;
 }
 
 function LocationMarker({ onLocationSelect, position }: { onLocationSelect: (lat: number, lon: number) => void, position: { lat: number, lon: number } }) {
@@ -78,7 +79,19 @@ function ExternalLayerController({ activeLayer, apiKey }: { activeLayer?: string
     );
 }
 
-export default function Map({ lat, lon, onLocationSelect, activeLayer, baseLayer }: MapProps) {
+function MapResizeController({ resizeToken }: { resizeToken?: string | number | boolean }) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.invalidateSize();
+    const timeout = setTimeout(() => map.invalidateSize(), 600);
+    return () => clearTimeout(timeout);
+  }, [map, resizeToken]);
+
+  return null;
+}
+
+export default function Map({ lat, lon, onLocationSelect, activeLayer, baseLayer, resizeToken }: MapProps) {
   // We need an API Key for OWM layers. 
   // Free alternatives for Tiles are scarce. RainViewer is good for precip.
   // We'll use OWM structure but user must provide key.
@@ -92,6 +105,7 @@ export default function Map({ lat, lon, onLocationSelect, activeLayer, baseLayer
         scrollWheelZoom={true} 
         style={{ height: '100%', width: '100%' }}
       >
+        <MapResizeController resizeToken={resizeToken} />
         <LayersControl position="topright">
             <LayersControl.BaseLayer checked={baseLayer !== 'satellite'} name="OpenStreetMap">
                 <TileLayer

@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { CloudSun, Waves, Building2, Wind, Droplets, Thermometer, AlertTriangle, Search, Loader2, Bookmark, BookmarkPlus, List, Trash2, MapPin, Info, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -183,7 +183,7 @@ export default function EnvironmentDashboard({
         <CardHeader className="p-3 pb-0 border-b space-y-3">
              {/* Search Bar */}
              <div className="relative">
-                <form onSubmit={handleSearch} className="flex gap-2 relative z-10">
+                <form id="search-form" onSubmit={handleSearch} className="flex gap-2 relative z-10">
                     <Input 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -309,14 +309,16 @@ export default function EnvironmentDashboard({
             <CardTitle className="text-sm font-medium flex items-center justify-between pb-2">
                 <div className="flex items-center gap-2">
                     <span>📍 Datos de Zona</span>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Info className="h-3 w-3 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p className="w-48 text-xs">Datos obtenidos de OpenWeatherMap, OpenStreetMap y sensores locales.</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TooltipProvider>
+                      <Tooltip>
+                          <TooltipTrigger asChild>
+                              <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                              <p className="w-48 text-xs">Datos obtenidos de OpenWeatherMap, OpenStreetMap y sensores locales.</p>
+                          </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                 </div>
                 {loading && <span className="text-xs text-muted-foreground animate-pulse">Actualizando...</span>}
             </CardTitle>

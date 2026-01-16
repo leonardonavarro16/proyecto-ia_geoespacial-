@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { MapPin, Loader2, Save, ArrowLeftRight, Clock, Trash2, Wind, ShieldAlert, Building2, ExternalLink, Info, FileDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import PDFExportButton from '../report/PDFExportButton';
-import { useOnborda } from "onborda";
 
 interface ChatProps {
   selectedLocation: { lat: number; lon: number } | null;
@@ -44,7 +43,6 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { startOnborda } = useOnborda();
   
   // Persistence logic
   const [savedLocations, setSavedLocations] = useState<any[]>([]);
@@ -122,7 +120,7 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
     <Card id="analysis-section" className="flex flex-col h-full overflow-hidden border-0 rounded-none shadow-none bg-background/95 backdrop-blur-xl">
       <CardHeader className="border-b px-4 py-3 flex flex-row justify-between items-center bg-white/80 dark:bg-black/40 sticky top-0 z-10">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <span className="bg-blue-600 p-1.5 rounded-lg text-white text-xs">AI</span> 
+            <span className="bg-primary p-1.5 rounded-lg text-primary-foreground text-xs">AI</span> 
             Analizador
         </CardTitle>
         <div className="flex gap-2">
@@ -132,7 +130,7 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
             </Button>
             {report && !isLoading && (
                 <>
-                    <Button id="save-report-button" variant="ghost" size="sm" onClick={handleSave} className="h-8 px-2 text-blue-600">
+                    <Button id="save-report-button" variant="ghost" size="sm" onClick={handleSave} className="h-8 px-2 text-primary">
                         <Save className="h-4 w-4" />
                     </Button>
                     <PDFExportButton report={report} />
@@ -149,7 +147,7 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
               <div className="bg-muted/50 p-4 rounded-xl border-2 border-dashed border-muted-foreground/20 animate-in fade-in slide-in-from-top-4">
                   <div className="flex justify-between items-center mb-4">
                       <h4 className="text-sm font-bold flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-blue-600" /> Historial de Análisis
+                          <Clock className="h-4 w-4 text-primary" /> Historial de Análisis
                       </h4>
                       <Button variant="ghost" size="sm" onClick={() => setShowSaved(false)}>Cerrar</Button>
                   </div>
@@ -162,7 +160,7 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
                                   <div className="flex justify-between items-start mb-1">
                                       <p className="text-xs font-bold truncate max-w-[150px]">{loc.note || 'Sin nota'}</p>
                                       <div className="flex gap-1">
-                                          <Button variant="ghost" size="sm" onClick={() => loadSaved(loc)} className="h-6 px-1 text-blue-600 hover:text-blue-700">
+                                          <Button variant="ghost" size="sm" onClick={() => loadSaved(loc)} className="h-6 px-1 text-primary hover:text-primary/80">
                                               Ver
                                           </Button>
                                           <Button variant="ghost" size="sm" onClick={() => deleteSaved(loc.id)} className="h-6 px-1 text-red-600">
@@ -184,9 +182,9 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
           {!report && !isLoading && !selectedLocation && (
             <div className="flex flex-col items-center justify-center text-center mt-20 space-y-6">
                 <div className="relative">
-                    <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 animate-pulse"></div>
-                    <div className="relative bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xl border border-blue-100 dark:border-blue-900">
-                        <MapPin className="h-12 w-12 text-blue-600" />
+                    <div className="absolute inset-0 bg-primary/40 blur-2xl opacity-30 animate-pulse"></div>
+                    <div className="relative bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xl border border-primary/20 dark:border-primary/40">
+                        <MapPin className="h-12 w-12 text-primary" />
                     </div>
                 </div>
                 <div className="space-y-2">
@@ -199,17 +197,17 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
           )}
 
           {selectedLocation && !report && !isLoading && (
-            <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800 w-full animate-in zoom-in-95">
+            <div className="mt-8 p-6 bg-accent/15 dark:bg-accent/15 rounded-2xl border border-accent/40 dark:border-accent/40 w-full animate-in zoom-in-95">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-blue-600 p-2 rounded-lg text-white">
+                    <div className="bg-primary p-2 rounded-lg text-primary-foreground">
                         <ArrowLeftRight className="h-5 w-5" />
                     </div>
                     <div className="text-left">
-                        <p className="text-xs font-bold text-blue-600 uppercase">Ubicación Seleccionada</p>
+                        <p className="text-xs font-bold text-primary uppercase">Ubicación Seleccionada</p>
                         <p className="text-sm font-medium">Lat: {selectedLocation.lat.toFixed(4)}, Lon: {selectedLocation.lon.toFixed(4)}</p>
                     </div>
                 </div>
-                <Button id="start-analysis-button" onClick={() => generateReport(selectedLocation)} size="lg" className="w-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20">
+                <Button id="start-analysis-button" onClick={() => generateReport(selectedLocation)} size="lg" className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30">
                     Iniciar Análisis Completo
                 </Button>
             </div>
@@ -221,7 +219,7 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
                 
                 {/* Resumen */}
                 <div id="report-summary" className="bg-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
-                    <h3 className="text-xl font-bold mb-4 text-blue-600 flex items-center gap-2">
+                    <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2">
                         <MapPin className="h-5 w-5" /> Resumen Ejecutivo
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -248,8 +246,8 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
                         </div>
                     </div>
 
-                    <div className="bg-blue-50/50 dark:bg-blue-900/10 p-5 rounded-2xl border border-blue-100 dark:border-blue-900/30">
-                        <h4 className="font-bold text-blue-700 dark:text-blue-400 mb-3 flex items-center gap-2">
+                    <div className="bg-accent/15 dark:bg-accent/15 p-5 rounded-2xl border border-accent/40 dark:border-accent/40">
+                        <h4 className="font-bold text-foreground mb-3 flex items-center gap-2">
                             <Building2 className="h-4 w-4" /> Infraestructura
                         </h4>
                         <div className="space-y-3 text-sm">
@@ -308,21 +306,21 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
                     <p className="text-slate-300 text-sm mb-4 leading-relaxed">
                         {report.conclusion}
                     </p>
-                    <div className="bg-blue-600/20 p-4 rounded-xl border border-blue-500/30">
-                        <p className="text-blue-300 font-bold text-xs uppercase tracking-wider mb-1">Recomendación Final</p>
+                    <div className="bg-primary/20 p-4 rounded-xl border border-primary/40">
+                        <p className="text-primary/80 font-bold text-xs uppercase tracking-wider mb-1">Recomendación Final</p>
                         <p className="text-sm">{report.recomendacionFinal}</p>
                     </div>
                 </div>
 
                 {/* Enlaces */}
                 <div className="flex flex-wrap gap-2 justify-center">
-                    <Button variant="ghost" size="sm" asChild className="text-blue-600">
+                    <Button variant="ghost" size="sm" asChild className="text-primary">
                         <a href={report.enlaces.ign} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3 w-3 mr-2" /> IGN</a>
                     </Button>
-                    <Button variant="ghost" size="sm" asChild className="text-blue-600">
+                    <Button variant="ghost" size="sm" asChild className="text-primary">
                         <a href={report.enlaces.copernicus} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3 w-3 mr-2" /> Copernicus</a>
                     </Button>
-                    <Button variant="ghost" size="sm" asChild className="text-blue-600">
+                    <Button variant="ghost" size="sm" asChild className="text-primary">
                         <a href={report.enlaces.osm} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3 w-3 mr-2" /> OSM</a>
                     </Button>
                 </div>
@@ -339,7 +337,7 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
-                        <Button onClick={handleSave} className="rounded-xl h-12 bg-blue-600 hover:bg-blue-700">
+                        <Button onClick={handleSave} className="rounded-xl h-12 bg-primary hover:bg-primary/90">
                             <Save className="h-4 w-4 mr-2" />
                             Guardar Informe
                         </Button>
@@ -360,9 +358,9 @@ export default function Chat({ selectedLocation, onLocationSelect }: ChatProps) 
           {isLoading && (
               <div className="flex flex-col items-center justify-center p-20 space-y-6">
                   <div className="relative">
-                      <div className="h-16 w-16 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
+                      <div className="h-16 w-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
                       <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="h-8 w-8 bg-blue-600 rounded-lg animate-pulse"></div>
+                          <div className="h-8 w-8 bg-primary rounded-lg animate-pulse"></div>
                       </div>
                   </div>
                   <div className="text-center space-y-2">

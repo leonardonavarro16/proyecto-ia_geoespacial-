@@ -19,7 +19,6 @@ export const metadata: Metadata = {
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { OnbordaProvider } from "onborda";
 
 export default function RootLayout({
   children,
@@ -31,12 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen w-screen overflow-hidden`}
       >
-        <OnbordaProvider>
-            <TooltipProvider>
-                {children}
-                <Toaster position="top-center" richColors />
-            </TooltipProvider>
-        </OnbordaProvider>
+        <TooltipProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+        </TooltipProvider>
       </body>
     </html>
   );

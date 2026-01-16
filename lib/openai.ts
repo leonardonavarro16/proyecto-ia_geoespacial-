@@ -1,16 +1,19 @@
 import { createOpenAI } from '@ai-sdk/openai';
 
-// 1. Verify API Key is present to avoid silent failures
-if (!process.env.OPENAI_API_KEY) {
-    console.error("❌ ERROR: OPENAI_API_KEY is missing in environment variables.");
+// 1. Verify API Key
+const apiKey = process.env.OPENAI_API_KEY;
+if (!apiKey) {
+    console.error("❌ ERROR: OPENAI_API_KEY is missing.");
     throw new Error("Missing OPENAI_API_KEY");
 }
 
-// 2. Configure the OpenAI Provider
+// Debug prefix (Safe for production logs)
+if (process.env.NODE_ENV === 'production') {
+    console.log(`[Config] OpenAI Key check: Prefix="${apiKey.substring(0, 7)}...", Length=${apiKey.length}`);
+}
+
 export const openai = createOpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: apiKey,
 });
 
-// 3. Export the standard model to use across the app
-// We use 'gpt-4o' as requested for high capabilities, or fall back to 'gpt-4-turbo'
 export const model = openai('gpt-4o');

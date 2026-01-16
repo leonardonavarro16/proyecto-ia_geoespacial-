@@ -1,88 +1,23 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Chat from '@/components/chat/Chat';
 import EnvironmentDashboard from '@/components/dashboard/EnvironmentDashboard';
-import { Onborda, useOnborda } from "onborda";
-import { TourCard } from "@/components/tour/TourCard";
-
-// Helper component to handle auto-start logic (One-time only)
-function TourAutoStart() {
-  const { startOnborda } = useOnborda();
-  
-  useEffect(() => {
-    const hasSeenTour = localStorage.getItem("geo_tour_completed");
-    if (!hasSeenTour) {
-      const timer = setTimeout(() => {
-        startOnborda("geo-tour");
-        localStorage.setItem("geo_tour_completed", "true");
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [startOnborda]);
-
-  return null;
-}
-
+import { HelpMenu } from "@/components/ui/HelpMenu";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 // Dynamically import Map to avoid SSR issues with Leaflet
 const Map = dynamic(() => import('@/components/map/Map'), { 
   ssr: false,
   loading: () => <div className="h-full w-full flex items-center justify-center bg-muted text-muted-foreground">Cargando mapa...</div>
 });
 
-const tourSteps = [
-  {
-    tour: "geo-tour",
-    steps: [
-      {
-        icon: "🗺️",
-        title: "Paso 1: Análisis Territorial",
-        content: "Haz click en cualquier punto del mapa para seleccionar una parcela. El sistema registrará las coordenadas exactas para el análisis.",
-        selector: "#map-section",
-        side: "top" as const,
-        showPointer: false, // Card stays centered, no arrow
-      },
-      {
-        icon: "🔍",
-        title: "Paso 2: Localización Directa",
-        content: "Utiliza este buscador para situarte en cualquier dirección o municipio del mundo de forma instantánea.",
-        selector: "#search-form",
-        side: "bottom" as const,
-        showPointer: false,
-      },
-      {
-        icon: "🌏",
-        title: "Paso 3: Imagen de Satélite",
-        content: "Cambia a la vista de satélite para observar el estado real del suelo, vegetación e infraestructuras existentes.",
-        selector: "#map-view-toggle",
-        side: "bottom" as const,
-        showPointer: false,
-      },
-      {
-        icon: "📊",
-        title: "Paso 4: Variables del Entorno",
-        content: "Aquí verás el clima actual, riesgos de inundación según el terreno y servicios urbanos cercanos.",
-        selector: "#dashboard-section",
-        side: "left" as const,
-        showPointer: false,
-      },
-      {
-        icon: "🤖",
-        title: "Paso 5: Reporte Pericial IA",
-        content: "Pulsa el botón de 'Iniciar Análisis' para que nuestra IA redacte un informe técnico profesional basado en todas las fuentes consultadas.",
-        selector: "#analysis-section",
-        side: "right" as const,
-        showPointer: false,
-      },
-    ]
-  }
-];
 
 export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [activeLayer, setActiveLayer] = useState<string | null>(null);
   const [baseLayer, setBaseLayer] = useState<string>('osm');
+  const [showAnalyzer, setShowAnalyzer] = useState(true);
 
   // Default Focus (Madrid center)
   const defaultLat = 40.416775;
@@ -93,17 +28,35 @@ export default function Home() {
   };
 
   return (
-    <Onborda 
-        steps={tourSteps} 
-        cardComponent={TourCard} 
-        shadowOpacity="0.8" 
-        shadowRgb="0,0,0"
-    >
-      <TourAutoStart />
       <main className="flex h-screen w-screen flex-col md:flex-row overflow-hidden bg-background">
         {/* Sidebar / Chat Area */}
-        <div id="analysis-section" className="w-full md:w-[320px] lg:w-[450px] shrink-0 border-r z-10 h-[50vh] md:h-full order-2 md:order-1 relative bg-white dark:bg-slate-950">
-          <Chat selectedLocation={selectedLocation} onLocationSelect={setSelectedLocation} />
+        <div
+          className={`shrink-0 border-r z-10 h-[50vh] md:h-full order-2 md:order-1 relative bg-white dark:bg-slate-950 overflow-hidden transition-all duration-500 ease-in-out ${
+            showAnalyzer ? "w-full md:w-[320px] lg:w-[450px]" : "w-10 md:w-12"
+          }`}
+        >
+          <div
+            className={`h-full transition-transform duration-500 ease-in-out ${
+              showAnalyzer ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
+            <Chat selectedLocation={selectedLocation} onLocationSelect={setSelectedLocation} />
+          </div>
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => setShowAnalyzer(prev => !prev)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setShowAnalyzer(prev => !prev);
+              }
+            }}
+            className="toggle-handle absolute top-1/2 right-0 -translate-y-1/2 flex h-24 w-10 items-center justify-center rounded-l-2xl border border-slate-200 bg-white/90 text-slate-700 shadow-lg backdrop-blur transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/90 dark:text-slate-200"
+            aria-label={showAnalyzer ? "Ocultar analizador" : "Mostrar analizador"}
+          >
+            {showAnalyzer ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+          </div>
         </div>
 
         {/* Map Area */}
@@ -114,10 +67,11 @@ export default function Home() {
             onLocationSelect={(lat, lon) => setSelectedLocation({ lat, lon })} 
             activeLayer={activeLayer}
             baseLayer={baseLayer}
+            resizeToken={showAnalyzer}
           />
           
           {/* Environment Dashboard Overlay */}
-          <div id="dashboard-section" className="absolute top-4 right-4 z-[1001] w-[320px]">
+          <div id="dashboard-section" className="absolute top-4 right-4 z-1001 w-[320px]">
               <EnvironmentDashboard 
                   lat={selectedLocation?.lat || defaultLat} 
                   lon={selectedLocation?.lon || defaultLon} 
@@ -129,6 +83,9 @@ export default function Home() {
               />
           </div>
           
+          {/* Help Menu Button */}
+          <HelpMenu />
+
           {!selectedLocation && (
             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white/95 dark:bg-black/95 p-4 rounded-2xl shadow-xl z-[1001] max-w-xs text-sm text-center border border-blue-100 animate-in fade-in slide-in-from-bottom-4 duration-1000">
               <p className="font-bold text-blue-600">📍 Haz click en el mapa para iniciar</p>
@@ -136,6 +93,5 @@ export default function Home() {
           )}
         </div>
       </main>
-    </Onborda>
   );
 }
